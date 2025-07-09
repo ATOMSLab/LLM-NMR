@@ -56,9 +56,6 @@ def token_formater(data, include_formula):
         logging.error(f"Error formatting data: {str(e)}")
         return ""
     
-def write_benchmark_result(file,reference,prediction,verdict,smiles_llm,takimono,scratchpad):
-    csv_file=open(file,"a")
-    csv_file.write('\n'+f"{reference}"+','+f"\"{prediction}\""+","+f"\"{smiles_llm}\""+','+verdict+","+takimono+','+"N/A"+","+f"\"{scratchpad}\"")
 
 def prepare_output_file(path):
     try:

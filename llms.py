@@ -21,7 +21,7 @@ def call_openAI(prompt, model="gpt-4o", temperature=1):
             messages=[ {"role": "system", "content": system_prompt},{"role": "user", "content": prompt}]
         )
         txt = completion.choices[0].message.content
-        return txt,txt.split("### Start answer ###")[1].split("### End answer ###")[0].replace('\n', '').strip().lower()
+        return txt
     except Exception as e:
         print("[ERROR] - openAI function:\n", str(e))
         raise
@@ -38,7 +38,7 @@ def call_claude_sonnet(prompt,  model="claude-3-5-sonnet-20241022",temperature=1
             messages=[{"role": "user", "content": prompt}]
         )
         txt = response.content[0].text
-        return txt,txt.split("### Start answer ###")[1].split("### End answer ###")[0].replace('\n', '').strip().lower()
+        return txt
     except Exception as e:
         print("[ERROR] - claude function:\n", str(e))
         raise
@@ -53,7 +53,7 @@ def call_gemini(prompt, model="gemini-2.0-flash-exp", temperature=1):
             request_options={"timeout": 65000}
         )
         txt = response.text
-        return txt.split("### Start answer ###")[1].split("### End answer ###")[0].replace('\n', '').strip().lower()
+        return txt
     except Exception as e:
         print("[ERROR] - gemini function:\n", str(e))
         raise
