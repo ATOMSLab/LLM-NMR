@@ -1,24 +1,25 @@
 
-# LLM-NMR: Benchmarking LLMs for NMR Spectral Reasoning
+# LLM Spectroscopy: A Benchmark for Chemical Reasoning with AI
 
 [![arXiv](https://img.shields.io/badge/arXiv-2025.XXXXX-b31b1b.svg)](https://arxiv.org/abs/XXXXX)
 
-**LLM-NMR** is a benchmark framework for evaluating large language models (LLMs) on NMR spectral analysis tasks, assessing their chemical reasoning capabilities using 1D NMR data.
+## 🔍 Overview
+**LLM-NMR** is a benchmark framework for evaluating the potential of large language models (LLMs) for solving Nuclear Magnetic Resonance (NMR) spectral analysis tasks through reasoning and domain knowledge.
 
 ---
 
-## 🔍 Overview
+## Key Contributions
 
 This repo includes:
 
-* ✅ An extensive dataset of 115 NMR problems with varying difficulty levels
-* 🧠 An Inference script for running LLMs from public facing apis for OpenAI, Anthropic, and Google
-* 📊 Tools for grading model outputs using SMILES + Tanimoto comparison
-* 🔁 Experimental configuration for prompts, temperature, formula masking, etc.
+* **Benchmark Dataset:**  115 NMR problems from Easy, Medium, and Hard difficulty levels sourced from NMR-Challenge.com
+* **Comprehensive LLM Evaluation:** An Inference script for running benchmark tasks on all LLMs with public facing apis from OpenAI, Anthropic, and Google
+* **Automated frading:** Tools for grading model outputs using SMILES, Tanimoto comparison, performance and scoring
+* 🔁 **Systematic Analysis:** Experimental configuration for analysing effects temperature, prompting strategies, reasoning effort, and molecular formula inclusion.
 
 ---
 
-## 📦 Installation
+## Quick Start
 
 ```bash
 git clone https://github.com/ATOMSLab/LLM-NMR.git
@@ -26,12 +27,12 @@ cd LLM-NMR
 pip install -r requirements.txt
 ```
 
-**Requirements:**
+**Required packages:**
 `pandas`, `numpy`, `rdkit`, `cirpy`, `openai`, `anthropic`, `google-generativeai`, `json`, `matplotlib`, `seaborn`
 
 ---
 
-## ⚙️ Setup
+## Basic Usage
 
 ### 1. Configure `.env`
 
@@ -47,9 +48,9 @@ GOOGLE_API_KEY=...
 
 Set:
 
-* Path to dataset JSON
+* Path to dataset JSON files
 * Output directory for inference and grading
-* Model settings (name, temperature, etc.)
+* Model settings (name, temperature,inference function to call etc.)
 
 ---
 
@@ -77,9 +78,10 @@ python3 grade.py
 This will:
 
 * Extract final answer from LLM output
-* Convert ground truth and prediction to SMILES
-* Compute Tanimoto similarity
-* Aggregate results for score
+* Convert chemical names to SMILES using CIRpy
+* Calculate Tanimoto similarity using RDKit against correct reference
+* Score: 1 for exact match (similarity = 1.0), 0 otherwise
+* Aggregate results for performance scores accross analytical dimensions
 
 ---
 
@@ -112,9 +114,10 @@ This will:
 | Claude-3.5 Sonnet | Anthropic | Standard  |
 | Gemini-2.0-Flash  | Google    | Standard  |
 
----
 
-## 🔍 Prompting Modes
+
+## ⚗️ Experiment Variables
+* **prompting strategies** 
 
 | Strategy | Description                    |
 | -------- | ------------------------------ |
@@ -124,13 +127,9 @@ This will:
 | P4       | CoT + expert NMR tips          |
 | P5       | CoT + knowledge + logic (full) |
 
----
-
-## ⚗️ Experiment Variables
 
 * **Temperature:** `0.0`, `0.5`, `0.8`, `1.0`
 * **Formula Inclusion:** with/without `molecular_formula`
-* **Reasoning Effort:** Low / Medium / High (for o-models)
 * **Difficulty Tier:** Easy / Medium / Hard
 
 ---
@@ -150,7 +149,7 @@ This will:
 ---
 
 ## 📚 Citation
-
+If you use this work in your research, please cite:
 ```bibtex
 @article{llm_spectroscopy_2025,
   title={LLM Spectroscopy: A Benchmark for Chemical Reasoning with AI},
