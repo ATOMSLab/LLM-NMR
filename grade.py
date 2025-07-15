@@ -1,293 +1,184 @@
-
 import os
-import time
-import logging
-import warnings
+import re
+import json
 import pandas as pd
-from rdkit import Chem, __version__ as rdkit_version
-from rdkit.Chem import DataStructs, rdFingerprintGenerator
+import csv
+import logging 
+import subprocess
+from typing import List, Dict, Any, Optional
+from smile import generate_smiles_string 
+from tanimoto_similarity import calculate_tanimoto, canonical_smiles_match
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
+from config import (
+    MODEL,
+    BENCHMARKS_ROOT,
+    CHALLENGE_IDS,
+    GRADED_DIR
+)
 
 class NMRGrader:
-    """NMR Grader focused on grading functionality"""
-    
-    def __init__(self):
-        self.logger = setup_logging()
-        self.logger.info("NMR Grader Initialized")
+    def __init__(self, model: str, benchmarks_root: str, challenge_ids: List[str], graded_dir: str):
+        self.model = model
+        self.benchmarks_root = benchmarks_root
+        self.challenge_ids = challenge_ids
+        self.graded_dir = graded_dir
+        self.max_text_length = 20000
         
-
-        self.processed_files = []
-        self.error_files = []
-        
-
-        self.answer_keys = {}
-        self._load_answer_keys()
-    
-    
-    def canonical_smiles_match(self, smiles1, smiles2):
-        """Check if two SMILES represent the same molecule"""
-        if not rdkit_available:
-            return False
-        
-        if not smiles1 or not smiles2 or pd.isna(smiles1) or pd.isna(smiles2):
-            return False
-        
+    def csv_extractor_local(self, filename: str) -> List[Dict[str, Any]]:
         try:
-            mol1 = Chem.MolFromSmiles(str(smiles1))
-            mol2 = Chem.MolFromSmiles(str(smiles2))
+            file = pd.read_csv(filename)
+            molecules = pd.DataFrame(file)
             
-            if mol1 is None or mol2 is None:
-                return False
-            
-            can1 = Chem.MolToSmiles(mol1, canonical=True, isomericSmiles=True)
-            can2 = Chem.MolToSmiles(mol2, canonical=True, isomericSmiles=True)
-            
-            return can1 == can2
-            
+            return [{
+                'Id': Id,
+                "Formula": Formula,                              
+                "Prediction": Prediction,           
+            } 
+            for Id, Formula, Prediction
+            in zip(molecules['Id'], molecules['Formula'], molecules['Prediction'])
+            ]
         except Exception as e:
-            self.logger.debug(f"Error comparing canonical SMILES: {e}")
-            return False
+            logging.error(f"Error extracting CSV {filename}: {str(e)}")
+            raise
     
-    def calculate_verdict(self, row):
-        # Name match
-        if 'prediction' in row and 'true_name' in row:
-            pred_name = str(row['prediction']).lower().strip() if pd.notna(row['prediction']) else ""
-            true_name = str(row['true_name']).lower().strip() if pd.notna(row['true_name']) else ""
-            
-            if pred_name and true_name and pred_name == true_name:
-                return 1
-    
-        if 'llm_smiles' in row and 'true_smiles' in row:
-            if pd.notna(row['llm_smiles']) and pd.notna(row['true_smiles']):
-                if str(row['llm_smiles']) == str(row['true_smiles']):
-                    return 1
-        
-        if pd.notna(row.get('CanonicalSMILES_Match')) and row['CanonicalSMILES_Match']:
-            return 1
-        
-        if pd.notna(row.get('TanimotoCoefficient')) and row['TanimotoCoefficient'] > 0.99:
-            if 'llm_smiles' in row and pd.notna(row['llm_smiles']):
-                llm_smiles = str(row['llm_smiles'])
-                if '.' in llm_smiles:
-                    return 1
-                else:
-                    if pd.notna(row.get('CanonicalSMILES_Match')):
-                        return 1 if row['CanonicalSMILES_Match'] else 0
-                    else:
-                        return 0
-            else:
-                return 1
-        
-        return 0
-    
-    def grade_file(self, file_path, difficulty=None):
-        
+    def get_paths(self, root: str) -> Optional[List[str]]:
+        """Get all paths in a directory."""
         try:
-            df = pd.read_csv(file_path)
-            original_columns = df.columns.tolist()
-            self.logger.info(f"Grading file: {file_path} ({len(df)} rows)")
-            
-            self.logger.debug(f"Original columns: {original_columns}")
-            
-            columns_removed = []
-            for col in GRADING_COLUMNS_TO_REMOVE:
-                if col in df.columns:
-                    df = df.drop(columns=[col])
-                    columns_removed.append(col)
-            
-            
-            
-            df['id'] = df['id'].astype(str)
-            
-            answer_df = self.answer_keys[difficulty].copy()
-            if 'id' in answer_df.columns:
-                answer_df['id'] = answer_df['id'].astype(str)
-            
-            answer_cols_needed = ['id']
-            if 'true_name' in answer_df.columns:
-                answer_cols_needed.append('true_name')
-            if 'true_smiles' in answer_df.columns:
-                answer_cols_needed.append('true_smiles')
-            
-            answer_df_subset = answer_df[answer_cols_needed]
-            
-            merged_df = pd.merge(df, answer_df_subset, 
-                               on='id', how='left', suffixes=('', '_answer'))
-            
-            print(f"  Calculating Tanimoto coefficients...")
-            merged_df['TanimotoCoefficient'] = merged_df.apply(
-                lambda row: self.calculate_tanimoto(row['llm_smiles'], row['true_smiles']),
-                axis=1
-            )
-            
-            merged_df['CanonicalSMILES_Match'] = merged_df.apply(
-                lambda row: self.canonical_smiles_match(row['llm_smiles'], row['true_smiles']),
-                axis=1
-            )
-            
-            merged_df['Verdict'] = merged_df.apply(self.calculate_verdict, axis=1)
-            
-            total = len(merged_df)
-            correct = merged_df['Verdict'].sum()
-            accuracy = (correct / total * 100) if total > 0 else 0
-            
-            reverse_mapping = {}
-            for orig_col in original_columns:
-                for standard, variations in COLUMN_MAPPINGS.items():
-                    if orig_col in variations:
-                        if standard in merged_df.columns:
-                            reverse_mapping[standard] = orig_col
-                        break
-            
-            merged_df = merged_df.rename(columns=reverse_mapping)
-            
-            final_columns = []
-            for col in original_columns:
-                if col in merged_df.columns and col not in GRADING_COLUMNS_TO_REMOVE:
-                    final_columns.append(col)
-            
-            grading_cols_to_add = []
-            
-            if 'True names' in original_columns or any('True names' in col for col in original_columns):
-                grading_cols_to_add.append('True names')
-                if 'true_name' in merged_df.columns:
-                    merged_df = merged_df.rename(columns={'true_name': 'True names'})
-            elif 'TrueName' in original_columns:
-                grading_cols_to_add.append('TrueName')
-                if 'true_name' in merged_df.columns:
-                    merged_df = merged_df.rename(columns={'true_name': 'TrueName'})
-            elif 'true_name' in merged_df.columns:
-                grading_cols_to_add.append('true_name')
-            
-            if 'Smiles' in original_columns or 'SMILES' in original_columns:
-                col_name = 'SMILES' if 'SMILES' in original_columns else 'Smiles'
-                grading_cols_to_add.append(col_name)
-                if 'true_smiles' in merged_df.columns:
-                    merged_df = merged_df.rename(columns={'true_smiles': col_name})
-            elif 'SMILE-correct' in original_columns:
-                grading_cols_to_add.append('SMILE-correct')
-                if 'true_smiles' in merged_df.columns:
-                    merged_df = merged_df.rename(columns={'true_smiles': 'SMILE-correct'})
-            elif 'true_smiles' in merged_df.columns:
-                grading_cols_to_add.append('true_smiles')
-            
-            grading_cols_to_add.extend(['TanimotoCoefficient', 'CanonicalSMILES_Match', 'Verdict'])
-            
-            for col in grading_cols_to_add:
-                if col in merged_df.columns and col not in final_columns:
-                    final_columns.append(col)
-            
-            merged_df = merged_df[final_columns]
-            
-            merged_df.to_csv(file_path, index=False)
-            self.logger.info(f"Saved graded file: {file_path}")
-            
-            self.processed_files.append({
-                'path': file_path,
-                'difficulty': difficulty,
-                'total': total,
-                'correct': correct,
-                'accuracy': accuracy
-            })
-            
-            print(f"  ✓ Graded successfully - Accuracy: {accuracy:.1f}% ({correct}/{total})")
-            
-            return merged_df
-            
+            com = subprocess.run(["ls", f"{root}"], stdout=subprocess.PIPE, text=True).stdout
+            return None if com == ""  else [f"{root}/{x}" for x in com.strip().split("\n")]    
         except Exception as e:
-            self.logger.error(f"Error grading file {file_path}: {e}")
-            self.error_files.append({'path': file_path, 'error': str(e)})
-            print(f"  Error: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
-    
-    def grade_directory_standard(self):
-        """Grade files using standard directory structure"""
+            logging.error(f"Paths issues: {e}")
+            raise
+
+    def truncate_prediction(self, text: str) -> str:
+        if len(text) <= self.max_text_length:
+            return text
+        keep_length = (self.max_text_length - 3) // 2
+        return text[:keep_length] + "..." + text[-keep_length:]
+
+
+    def extract_answer(self, text: str) -> str:
+        """Extract molecule name from structured model response."""
+        if not text:
+            raise ValueError("model response is empty check inference call")
+        # Scenario 1: ### Start answer ### <prediction> ### End answer ###
+        match = re.search(r'###\s*Start answer\s*###\s*(.*?)\s*###\s*End answer\s*###', text, re.IGNORECASE | re.DOTALL)
+        if not match:
+            return "FAILED EXTRACTION"
+        raw = match.group(1).strip()
+        cleaned = re.sub(r'[^a-zA-Z0-9\s\-\+\(\),]', '', raw)
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        return cleaned if cleaned else "FAILED EXTRACTION"
+
+
+    def verdict_calculation(self, smiles_correct: str, smiles_llm: str, tanimoto: float) -> int:
+        return 1 if (canonical_smiles_match(smiles_correct, smiles_llm) or tanimoto == 1.0) else 0
+
+    def grade_task_file(self, task_file: str, reference_hash: List[Dict[str, Any]]) -> None:
+        graded_tasks = []
+        tasks = self.csv_extractor_local(task_file)
+        for task in tasks:
+            if task['Id'] in reference_hash:
+                entry = reference_hash[task['Id']].copy()
+                entry["Prediction"] = self.extract_answer(task['Prediction'])   
+                entry["SMILE-LLM"] = entry['SMILE-correct'] if  entry["TrueName"].lower()== entry["Prediction"].lower() else generate_smiles_string(entry["Prediction"])
+                entry["TanimotoCoefficient"] = calculate_tanimoto(
+                    entry['SMILE-correct'], 
+                    entry["SMILE-LLM"]
+                )
+                entry["Verdict"] = self.verdict_calculation(
+                    entry['SMILE-correct'],
+                    entry["SMILE-LLM"],
+                    entry["TanimotoCoefficient"]
+                )
+                entry["ScratchPad"] = self.truncate_prediction(task['Prediction'])
+                graded_tasks.append(entry)
+        
+        # Save graded results
+        data = pd.DataFrame(graded_tasks)
+        outputfile = task_file.replace(str(self.benchmarks_root), str(self.graded_dir))
+        os.makedirs(os.path.dirname(outputfile), exist_ok=True)
+        data.to_csv(outputfile, index=False, quoting=csv.QUOTE_ALL)
+        logging.info(outputfile)
+
+    def load_correct_references(self) -> Dict[str, Dict[str, Any]]:
+        """Load all reference data."""
+        refs = {}
+        for challenge_id in self.challenge_ids:
+            df = pd.read_csv(challenge_id)
+            category = challenge_id.split('_')[-1].replace(".csv", "").upper()
+            refs[category] = {
+                row['NMR_Challenge_ID']: {
+                    'Id': row['NMR_Challenge_ID'],
+                    'Formula': row['Formula'],
+                    'TrueName': row['True names'],
+                    'SMILE-correct': row['Smiles']
+                }
+                for _, row in df.iterrows()
+            }
+        return refs
+
+    def get_raw_files(self) -> List[Dict[str, Any]]:
+        """Get all raw files to grade organized by category."""
+        raw_files = []
+        
+        model_path = f"{self.benchmarks_root}/{self.model}"
+        categories = self.get_paths(model_path)
+        for category in categories:
+            entry = {
+                'category': category.split('/')[-1],
+                'task_files': []
+            }
+            formula_paths = self.get_paths(category)
+            if formula_paths:
+                for formula_path in formula_paths:
+                    task_paths = self.get_paths(formula_path)
+                    if task_paths:
+                        entry['task_files'].extend(task_paths)
+            raw_files.append(entry)
+        return raw_files
+
+    def grade_all_files(self) -> None:
+        """Grade all files in the benchmark directory."""
         try:
-            model_dirs = [d for d in os.listdir(BENCHMARK_DIR) 
-                         if os.path.isdir(os.path.join(BENCHMARK_DIR, d))]
-            
-            if not model_dirs:
-                print(f"No model directories found in {BENCHMARK_DIR}")
-                return False
-            
-            print(f"\nFound {len(model_dirs)} model directories")
-            
-            for model_idx, model_name in enumerate(model_dirs):
-                model_dir = os.path.join(BENCHMARK_DIR, model_name)
-                print(f"\n=== Processing Model {model_idx+1}/{len(model_dirs)}: {model_name} ===")
+            # Load correct references
+            correct_references = self.load_correct_references()
+            # Get files to grade
+            raw_files = self.get_raw_files()
+            for category_data in raw_files:
+                category = category_data['category']
+                if category not in correct_references:
+                    logging.warning(f"No correct references found for category: {category}")
+                    continue
                 
-                for difficulty in ["EASY", "MEDIUM", "HARD"]:
-                    if difficulty not in self.answer_keys:
-                        continue
+                reference_hash = correct_references[category]
+                for task_file in category_data['task_files']:
+                    self.grade_task_file(task_file, reference_hash)
                     
-                    for formula_condition in FORMULA_CONDITIONS:
-                        dir_path = os.path.join(model_dir, difficulty, formula_condition)
-                        
-                        if not os.path.exists(dir_path):
-                            continue
-                        
-                        csv_files = [f for f in os.listdir(dir_path) if f.endswith('.csv')]
-                        
-                        for csv_file in csv_files:
-                            file_path = os.path.join(dir_path, csv_file)
-                            print(f"\nGrading: {model_name}/{difficulty}/{formula_condition}/{csv_file}")
-                            self.grade_file(file_path, difficulty)
-            
-            return True
-            
         except Exception as e:
-            self.logger.error(f"Error in standard grading: {e}")
-            return False
-# In[ ]:
+            logging.error(f"Error in grade_all_files: {str(e)}")
+            raise
 
+def main() -> None:
+    try:
+        grader = NMRGrader(
+            model=MODEL,
+            benchmarks_root=BENCHMARKS_ROOT,
+            challenge_ids=CHALLENGE_IDS,
+            graded_dir=GRADED_DIR
+        )
+        
+        grader.grade_all_files()
+        
+    except Exception as e:
+        logging.error(f"Fatal error in main: {str(e)}")
+        raise
 
-
-
-
-# This will overwrite the CSV files! 
-
-# In[ ]:
-
-
-def run_grading():
-    """Main function to run grading"""
-    print("\n" + "="*60)
-    print("NMR GRADING SYSTEM")
-    print("="*60)
-    print(f"\nBenchmark directory: {BENCHMARK_DIR}")
-    print(f"Answer key directory: {ANSWER_KEY_DIR}")
-    print(f"Formula conditions: {FORMULA_CONDITIONS}")
-    
-    grader = NMRGrader()
-    
-    start_time = time.time()
-    
-    success = grader.grade_directory_standard()
-    
-    elapsed = time.time() - start_time
-    
-    grader.print_summary()
-    
-    print(f"\nTotal time: {elapsed:.1f} seconds ({elapsed/60:.1f} minutes)")
-    print("\nGrading complete!")
-    
-    return grader 
-
-print("Main execution function defined!")
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-grader = run_grading()
-
+if __name__ == "__main__":
+    main()

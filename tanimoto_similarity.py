@@ -20,12 +20,9 @@ def calculate_tanimoto(smile1, smile2):
         print(f"[ERROR-0] Tanimoto coefficient calculation failed: {e}")
         return 0
 
-def canonical_smiles_match(self, smiles1, smiles2):
+def canonical_smiles_match(smiles1, smiles2):
         """Check if two SMILES represent the same molecule"""
-        if not rdkit_available:
-            return False
-        
-        if not smiles1 or not smiles2 or pd.isna(smiles1) or pd.isna(smiles2):
+        if not smiles1 or not smiles2 :
             return False
         
         try:
@@ -41,5 +38,5 @@ def canonical_smiles_match(self, smiles1, smiles2):
             return can1 == can2
             
         except Exception as e:
-            self.logger.debug(f"Error comparing canonical SMILES: {e}")
+            print(f"Error comparing canonical SMILES: {e}")
             return False

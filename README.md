@@ -5,6 +5,7 @@
 
 ## 🔍 Overview
 **LLM-NMR** is a benchmark framework for evaluating the potential of large language models (LLMs) for solving Nuclear Magnetic Resonance (NMR) spectral analysis tasks through reasoning and domain knowledge.
+<p align="center"><img src="./bg.png" alt="LLM-NMR Illustration"/> </p>
 
 ---
 
@@ -15,7 +16,7 @@ This repo includes:
 * **Benchmark Dataset:**  115 NMR problems from Easy, Medium, and Hard difficulty levels sourced from NMR-Challenge.com
 * **Comprehensive LLM Evaluation:** An Inference script for running benchmark tasks on all LLMs with public facing apis from OpenAI, Anthropic, and Google
 * **Automated frading:** Tools for grading model outputs using SMILES, Tanimoto comparison, performance and scoring
-* **Systematic Analysis:** Experimental configuration for analysing effects temperature, prompting strategies, reasoning effort, and molecular formula inclusion.
+* 🔁 **Systematic Analysis:** Experimental configuration for analysing effects temperature, prompting strategies, reasoning effort, and molecular formula inclusion.
 
 ---
 

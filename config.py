@@ -9,11 +9,12 @@ from llms import call_openAI, call_gemini, call_claude_sonnet
 MODEL = "gemini-2.0-flash-exp"
 INFERENCE_CALL=call_gemini
 TEMPERATURES = [0, 0.5, 0.8, 1.0]
+GRADED_DIR=Path("./BENCHMARK/GRADED")
 
 # Paths
 IDS_ROOT = "./H1 NMR Datasets/IDS/"
 CHALLENGE_ROOT = "./H1 NMR Datasets/Challenges/"
-BENCHMARKS_ROOT = Path("./BENCHMARK")
+BENCHMARKS_ROOT = Path("./BENCHMARK/RAW")
 
 #files 
 CHALLENGE_FILES = [
@@ -23,9 +24,9 @@ CHALLENGE_FILES = [
 ]
 
 CHALLENGE_IDS = [
-    f"{IDS_ROOT}Hnmr_challenge_easy_ids.csv",
-    f"{IDS_ROOT}Hnmr_challenge_medium_ids.csv",
-    f"{IDS_ROOT}Hnmr_challenge_hard_ids.csv",
+    f"{IDS_ROOT}Hnmr_challenge_easy.csv",
+    f"{IDS_ROOT}Hnmr_challenge_medium.csv",
+    f"{IDS_ROOT}Hnmr_challenge_hard.csv",
 ]
 
 # Formula options

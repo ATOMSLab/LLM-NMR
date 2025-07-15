@@ -1,3 +1,6 @@
 BENCHMARK
 H1 NMR Datasets
 __pycache__
+.DS_Store
+venv
+*.csv
