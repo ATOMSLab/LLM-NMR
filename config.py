@@ -1,7 +1,7 @@
 # benchmark config
 import os
 from pathlib import Path
-from prompts import base_prompt, cot_prompt, logic_tips_prompt, expert_tips_prompt, expert_logic_tips_prompt
+from prompts_HNMR import base_prompt, cot_prompt, logic_tips_prompt, expert_tips_prompt, expert_logic_tips_prompt
 from llms import call_openAI, call_gemini, call_claude_sonnet
 
 

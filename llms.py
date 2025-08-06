@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from anthropic import Anthropic
 from openai import OpenAI
 import google.generativeai as genai
-from prompts import system_prompt
+from prompts_HNMR import system_prompt
 
 
 # loading variables from .env file
