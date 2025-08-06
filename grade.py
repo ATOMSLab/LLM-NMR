@@ -67,7 +67,6 @@ class NMRGrader:
         """Extract molecule name from structured model response."""
         if not text:
             raise ValueError("model response is empty check inference call")
-        # Scenario 1: ### Start answer ### <prediction> ### End answer ###
         match = re.search(r'###\s*Start answer\s*###\s*(.*?)\s*###\s*End answer\s*###', text, re.IGNORECASE | re.DOTALL)
         if not match:
             return "FAILED EXTRACTION"
