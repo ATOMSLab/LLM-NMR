@@ -1,5 +1,5 @@
 
-# LLM Spectroscopy: A Benchmark for Chemical Reasoning with AI
+# NMR-Challenge for LLMs: Evaluating Chemical Reasoning in Humans and AI
 
 [![arXiv](https://img.shields.io/badge/arXiv-2025.XXXXX-b31b1b.svg)](https://arxiv.org/abs/XXXXX)
 
