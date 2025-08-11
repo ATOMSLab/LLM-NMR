@@ -88,7 +88,7 @@ This will:
 
 ## 📁 Dataset
 
-* Download JSON dataset from [Drive link]()
+* unzip JSON dataset from the zip folder
 * Place it in the root directory (or update path in `config.py`)
 
 ### Composition:
@@ -161,7 +161,7 @@ If you use this work in your research, please cite:
 ## 🔗 Links
 
 * 🔬 [NMR-Challenge.com](https://nmr-challenge.com) – source of benchmark problems
-* 📂 [Download Dataset]() – (link to JSON dataset on Google Drive)
+* 📂 [Dataset Zip]() – (JSON dataset on Google Zip folder )
 * 🧪 [RDKit Documentation](https://www.rdkit.org/docs/) – for SMILES handling and similarity metrics
 
 
