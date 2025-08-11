@@ -1,0 +1,23 @@
+def expert_tips_prompt(nmr_data, formula=None):
+    """Chain of thought prompt with expert tips"""
+    return f"""
+            Here is 1H and 13C NMR spectrum data for a certain molecule {":" if formula is None else f"with chemical formula {formula}:"}
+            {nmr_data} 
+            What's the molecule's name? Let's think step-by-step. 
+            Use a scratchpad to record your thoughts, and continuing using it until your confident about your answer. 
+            
+            Before the analysis of NMR spectra, think about the molecular formula. Is the molecule fully saturated, or are there some multiple bonds or rings?
+            Consider the solvent used. Do you expect the appearance of signals from exchangeable hydrogens (e.g., in CDCl3or DMSO), or are they exchanged to deuterium (e.g. in D2O or methanol-d4)? 
+            Identify solvent signals and ignore them in the structural analysis.
+            Consider the number of signals, their positions (chemical shifts), intensity, shape and splitting.
+            The number of signals corresponds to the number of non-equivalent atoms in the molecule.
+            Typical regions in proton NMR spectra are: carboxylic acids: 10–13 ppm, aldehydes: 9–11 ppm, aromatic hydrogens: 6.5–8 ppm, hydrogens attached to a double-bond carbon: 4–7.5 ppm, O–CH fragments (alcohols, ethers): 3–5 ppm, hydrogens attached to a triple-bond carbon: 2–3.5 ppm, hydrogens attached to a single-bond carbon without an electronegative substituent: 0.5–2.5 ppm.
+            
+            For 13C NMR spectra: The number of signals corresponds to the number of non-equivalent carbon atoms in the molecule. Signals of carbonyl carbon atoms (in ketones and aldehydes) can be found at 190–220 ppm, signals of carboxylic acid derivatives (acids, esters, anhydrides, amides, halides) can be found at 160–180 ppm. In the carbon APT spectra, positive signals (up signals) correspond to CH₂ and quaternary carbon atoms, and negative signals (down signals) correspond to CH₃ and CH carbon atoms. Signal intensities in carbon spectra cannot be quantified. The signal splitting in carbon spectra is usually removed by decoupling, which leads to all carbon signals being observed as singlets.
+            
+            {"" if formula is None else "Be mindful of stoichiometry and ensure consistency with the given formula." }  
+            Format the final answer like this - 
+            ### Scratchpad ### <scratchpad> ### Scratchpad ###
+            ### Start answer ### <prediction> ### End answer ###
+            The prediction should only contain the name of the molecule and no other text
+        """

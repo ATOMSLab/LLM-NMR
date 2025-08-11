@@ -1,0 +1,18 @@
+def logic_tips_prompt(nmr_data, formula=None):
+    """Chain of thought prompt with logic tips"""
+    return f"""
+           Here is 1H and 13C NMR spectrum data for a certain molecule {":" if formula is None else f"with chemical formula {formula}:"}
+            {nmr_data}
+            What's the molecule's name?
+            Let's think step-by-step. 
+            Use a scratchpad to record your thoughts. First, identify all groups of peaks and the corresponding number of hydrogens, and ensure the stoichiometry of the formula matches that in the spectrum Then, for each group of peaks, hypothesize one or more molecule fragments that could explain the signals in that peak.
+            Rank the hypotheses according to which is most plausible
+            Occasionally synthesize a candidate molecule from the provisionally-assigned fragments
+            Be mindful of connectivity and ensure consistency with all hypothesized fragments
+            {"" if formula is None else "Be mindful of stoichiometry and ensure consistency with the given formula." }
+            Continue using the scratchpad until you're confident about the answer.
+            Format the final answer like this - 
+            ### Scratchpad ### <scratchpad> ### Scratchpad ###
+            ### Start answer ### <prediction> ### End answer ###
+            The prediction should only contain the name of the molecule and no other text
+        """

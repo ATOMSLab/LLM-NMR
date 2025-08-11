@@ -1,0 +1,12 @@
+def base_prompt(nmr_data, formula=None):
+    """Zero-shot prompt"""
+    return f"""
+            Here is 1H and 13C NMR spectrum data for a certain molecule {":" if formula is None else f"with chemical formula {formula}:"}
+            {nmr_data}
+            What's the molecule's name?
+            {"" if formula is None else "Be mindful of stoichiometry and ensure consistency with the given formula." }
+            Format the final answer like this - 
+            ### Scratchpad ### <scratchpad> ### Scratchpad ###
+            ### Start answer ### <prediction> ### End answer ###
+            The prediction should only contain the name of the molecule and no other text
+        """
