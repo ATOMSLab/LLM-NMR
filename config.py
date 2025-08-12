@@ -12,8 +12,8 @@ TEMPERATURES = [0, 0.5, 0.8, 1.0]
 GRADED_DIR=Path("./BENCHMARK/GRADED")
 
 # Paths
-IDS_ROOT = "./H1 NMR Datasets/IDS/"
-CHALLENGE_ROOT = "./H1 NMR Datasets/Challenges/"
+IDS_ROOT = "./answer_keys/IDS/"
+CHALLENGE_ROOT = "./datasets/hnmr_benchmark/"
 BENCHMARKS_ROOT = Path("./BENCHMARK/RAW")
 
 #files 

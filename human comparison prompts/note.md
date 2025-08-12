@@ -6,7 +6,9 @@ The prompts in this folder were used for comparison against human performance ev
 
 ## Data
 
-This benchmark run uses the **raw, unnormalized full H + CNMR data**.
+This benchmark run uses the raw, unnormalized full H + CNMR data, which can be found in the unzipped `.datasets/human_comparison_benchmark folder.`
+It includes data for both CNMR and HNMR.
+You will need to provide a function that sorts the tasks and aggregates the two data modalities before prompt injection.
 
 ## Steps to Recreate
 
