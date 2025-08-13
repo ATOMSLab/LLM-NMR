@@ -1,10 +1,10 @@
 
 # NMR-Challenge for LLMs: Evaluating Chemical Reasoning in Humans and AI
 
-[![arXiv](https://img.shields.io/badge/arXiv-2025.XXXXX-b31b1b.svg)](https://arxiv.org/abs/XXXXX)
+[![arXiv](https://img.shields.io/badge/ChemRxiv-2025.x8h36v2-b31b1b.svg)](https://doi.org/10.26434/chemrxiv-2025-x8h36-v2)
 
 ## 🔍 Overview
-**LLM-NMR** is a benchmark framework for evaluating the potential of large language models (LLMs) for solving Nuclear Magnetic Resonance (NMR) spectral analysis tasks through reasoning and domain knowledge.
+**LLM-NMR** is a framework for evaluating the potential of large language models (LLMs) for solving Nuclear Magnetic Resonance (NMR) spectral analysis tasks through reasoning and domain knowledge.
 <p align="center"><img src="./bg.png" alt="LLM-NMR Illustration"/> </p>
 
 ---
@@ -14,9 +14,9 @@
 This repo includes:
 
 * **Benchmark Dataset:**  115 NMR problems from Easy, Medium, and Hard difficulty levels sourced from [NMR-Challenge.com](https://nmr-challenge.uochb.cas.cz/)
-* **Comprehensive LLM Evaluation:** An Inference script for running benchmark tasks on all LLMs with public facing APIs from OpenAI, Anthropic, and Google
-* **Automated grading:** Tools for grading model outputs using SMILES, Tanimoto comparison, performance and scoring
-*  **Systematic Analysis:** Experimental configuration for analysing effects temperature, prompting strategies, reasoning effort, and molecular formula inclusion.
+* **Comprehensive LLM Evaluation:** An Inference script for running benchmark tasks on all LLMs with public-facing APIs from OpenAI, Anthropic, and Google
+* **Automated grading:** Tools for grading model outputs using SMILES, Tanimoto comparison, performance, and scoring
+*  **Systematic Analysis:** Experimental configuration for analysing effects of temperature, prompting strategies, reasoning effort, and molecular formula inclusion.
 
 ---
 
@@ -150,10 +150,11 @@ This will:
 If you use this work in your research, please cite:
 ```bibtex
 @article{llm_spectroscopy_2025,
-  title={LLM Spectroscopy: A Benchmark for Chemical Reasoning with AI},
-  author={[Authors]},
-  journal={...},
-  year={2025}
+  title={NMR-Challenge for LLMs: Evaluating Chemical Reasoning in Humans and AI},
+  author  = {Sharlin, Samiha and Agbere, Fariha and Ishimwe, Kevin and Osifov{\'a}, Zuzana and Socha, Ond{\v r}ej and Dra{\v c}{\'\i}nsk{\'y}, Martin and Josephson, Tyler},
+  journal = {ChemRxiv},
+  year    = {2025},
+  doi     = {10.26434/chemrxiv-2025-x8h36-v2},
 }
 ```
 
