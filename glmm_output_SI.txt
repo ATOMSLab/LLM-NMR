@@ -1,0 +1,194 @@
+==============================================================================
+DATA SUMMARY
+==============================================================================
+
+'data.frame':	5571 obs. of  5 variables:
+ $ correct    : int  1 1 0 1 1 1 1 0 1 1 ...
+ $ solver_type: Factor w/ 3 levels "Student","GPT-4o",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ difficulty : Factor w/ 3 levels "easy","hard",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ problem_id : int  19 9 113 18 89 122 69 44 98 38 ...
+ $ solver_id  : chr  "student_2" "student_7" "student_5" "student_1" ...
+
+--- Sample sizes by solver type ---
+
+Student  GPT-4o      o1 
+   1546    2300    1725 
+
+--- Sample sizes by difficulty ---
+
+  easy   hard medium 
+  2684   1129   1758 
+
+--- Cross-tabulation ---
+         
+          easy hard medium
+  Student  829  289    428
+  GPT-4o  1060  480    760
+  o1       795  360    570
+
+--- Unique solvers ---
+Students: 140 
+GPT-4o: 20 
+o1: 15 
+
+--- Unique problems ---
+Total: 115 
+
+
+==============================================================================
+MODEL 1: MAIN EFFECTS
+correct ~ solver_type + difficulty + (1 | problem_id) + (1 | solver_id)
+==============================================================================
+
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
+ Family: binomial  ( logit )
+Formula: correct ~ solver_type + difficulty + (1 | problem_id) + (1 |      solver_id)
+   Data: df
+
+      AIC       BIC    logLik -2*log(L)  df.resid 
+   4385.1    4431.5   -2185.5    4371.1      5564 
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-13.9850  -0.3941   0.0236   0.3462  21.5783 
+
+Random effects:
+ Groups     Name        Variance Std.Dev.
+ solver_id  (Intercept) 1.668    1.292   
+ problem_id (Intercept) 4.400    2.098   
+Number of obs: 5571, groups:  solver_id, 175; problem_id, 115
+
+Fixed effects:
+                    Estimate Std. Error z value Pr(>|z|)    
+(Intercept)        0.5475190  0.3210462   1.705   0.0881 .  
+solver_typeGPT-4o -0.0005621  0.3233916  -0.002   0.9986    
+solver_typeo1      3.9729075  0.3768359  10.543  < 2e-16 ***
+difficultyhard    -3.6171015  0.5366962  -6.740 1.59e-11 ***
+difficultymedium  -2.6132377  0.4603285  -5.677 1.37e-08 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr) s_GPT- slvr_1 dffcltyh
+slvr_tGPT-4 -0.164                       
+solver_typ1 -0.132  0.144                
+diffcltyhrd -0.509 -0.004 -0.039         
+diffcltymdm -0.593 -0.005 -0.033  0.370  
+
+--- Odds Ratios ---
+      (Intercept) solver_typeGPT-4o     solver_typeo1    difficultyhard  difficultymedium 
+       1.72895813        0.99943801       53.13880973        0.02686042        0.07329685 
+
+--- Odds Ratios with 95% CI ---
+                         2.5 %       97.5 %
+(Intercept)        0.921529981   3.24384044
+solver_typeGPT-4o  0.530254638   1.88376728
+solver_typeo1     25.389173534 111.21799990
+difficultyhard     0.009381584   0.07690408
+difficultymedium   0.029733975   0.18068313
+
+
+==============================================================================
+MODEL 2: WITH INTERACTION
+correct ~ solver_type * difficulty + (1 | problem_id) + (1 | solver_id)
+==============================================================================
+
+Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
+ Family: binomial  ( logit )
+Formula: correct ~ solver_type * difficulty + (1 | problem_id) + (1 |      solver_id)
+   Data: df
+
+      AIC       BIC    logLik -2*log(L)  df.resid 
+   4383.7    4456.6   -2180.9    4361.7      5560 
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-13.8436  -0.3981   0.0237   0.3511  27.5258 
+
+Random effects:
+ Groups     Name        Variance Std.Dev.
+ solver_id  (Intercept) 1.661    1.289   
+ problem_id (Intercept) 4.433    2.106   
+Number of obs: 5571, groups:  solver_id, 175; problem_id, 115
+
+Fixed effects:
+                                   Estimate Std. Error z value Pr(>|z|)    
+(Intercept)                         0.52192    0.32562   1.603    0.109    
+solver_typeGPT-4o                   0.05024    0.33274   0.151    0.880    
+solver_typeo1                       3.98339    0.41163   9.677  < 2e-16 ***
+difficultyhard                     -3.83062    0.58096  -6.594 4.29e-11 ***
+difficultymedium                   -2.42587    0.48424  -5.010 5.45e-07 ***
+solver_typeGPT-4o:difficultyhard   -0.16798    0.29632  -0.567    0.571    
+solver_typeo1:difficultyhard        0.53046    0.36664   1.447    0.148    
+solver_typeGPT-4o:difficultymedium -0.10983    0.21803  -0.504    0.614    
+solver_typeo1:difficultymedium     -0.37014    0.29490  -1.255    0.209    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+                       (Intr) sl_GPT-4 slvr_1 dffcltyh dffcltym slvr_typGPT-4:dffcltyh slvr_typ1:dffcltyh slvr_typGPT-4:dffcltym
+slvr_tGPT-4            -0.191                                                                                                   
+solver_typ1            -0.154  0.152                                                                                            
+diffcltyhrd            -0.503  0.046    0.028                                                                                   
+diffcltymdm            -0.600  0.055    0.039  0.348                                                                            
+slvr_typGPT-4:dffcltyh  0.095 -0.162   -0.065 -0.301   -0.074                                                                   
+slvr_typ1:dffcltyh      0.083 -0.075   -0.293 -0.319   -0.064    0.454                                                          
+slvr_typGPT-4:dffcltym  0.126 -0.219   -0.096 -0.081   -0.274    0.264                  0.126                                   
+slvr_typ1:dffcltym      0.098 -0.092   -0.372 -0.062   -0.231    0.114                  0.429              0.437                
+
+--- Odds Ratios ---
+                       (Intercept)                  solver_typeGPT-4o                      solver_typeo1                     difficultyhard                   difficultymedium 
+                        1.68526030                         1.05152598                        53.69871556                         0.02169606                         0.08840096 
+  solver_typeGPT-4o:difficultyhard       solver_typeo1:difficultyhard solver_typeGPT-4o:difficultymedium     solver_typeo1:difficultymedium 
+                        0.84537193                         1.69970962                         0.89598306                         0.69063474 
+
+--- Odds Ratios with 95% CI ---
+                                          2.5 %      97.5 %
+(Intercept)                         0.890219917   3.1903378
+solver_typeGPT-4o                   0.547763815   2.0185833
+solver_typeo1                      23.965383493 120.3215485
+difficultyhard                      0.006948179   0.0677471
+difficultymedium                    0.034219498   0.2283707
+solver_typeGPT-4o:difficultyhard    0.472955185   1.5110389
+solver_typeo1:difficultyhard        0.828493467   3.4870677
+solver_typeGPT-4o:difficultymedium  0.584408050   1.3736731
+solver_typeo1:difficultymedium      0.387458394   1.2310389
+
+
+==============================================================================
+MODEL COMPARISON: LIKELIHOOD RATIO TEST
+==============================================================================
+
+Data: df
+Models:
+model: correct ~ solver_type + difficulty + (1 | problem_id) + (1 | solver_id)
+model2: correct ~ solver_type * difficulty + (1 | problem_id) + (1 | solver_id)
+       npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(>Chisq)  
+model     7 4385.1 4431.5 -2185.5    4371.1                       
+model2   11 4383.7 4456.6 -2180.9    4361.7 9.3517  4    0.05288 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+==============================================================================
+SESSION INFO
+==============================================================================
+
+R version 4.5.2 (2025-10-31)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sonoma 14.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] lme4_1.1-38  Matrix_1.7-4
+
+loaded via a namespace (and not attached):
+ [1] lattice_0.22-7   splines_4.5.2    Rdpack_2.6.4     cli_3.6.5        nloptr_2.2.1     grid_4.5.2       reformulas_0.4.2 compiler_4.5.2   boot_1.3-32      rbibutils_2.4    tools_4.5.2     
+[12] nlme_3.1-168     minqa_1.2.8      Rcpp_1.1.0       rlang_1.1.6      MASS_7.3-65     
