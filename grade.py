@@ -75,9 +75,11 @@ class NMRGrader:
         cleaned = re.sub(r'\s+', ' ', cleaned).strip()
         return cleaned if cleaned else "FAILED EXTRACTION"
 
+    def verdict_calculation(self, name_match: bool, smiles_correct: str, smiles_llm: str, tanimoto: float) -> int:
+        smiles_match = canonical_smiles_match(smiles_correct, smiles_llm)
+        exact_tanimoto = (tanimoto == 1.0)
+        return 1 if (name_match or smiles_match or exact_tanimoto) else 0
 
-    def verdict_calculation(self, smiles_correct: str, smiles_llm: str, tanimoto: float) -> int:
-        return 1 if (canonical_smiles_match(smiles_correct, smiles_llm) or tanimoto == 1.0) else 0
 
     def grade_task_file(self, task_file: str, reference_hash: List[Dict[str, Any]]) -> None:
         graded_tasks = []
@@ -86,12 +88,14 @@ class NMRGrader:
             if task['Id'] in reference_hash:
                 entry = reference_hash[task['Id']].copy()
                 entry["Prediction"] = self.extract_answer(task['Prediction'])   
-                entry["SMILE-LLM"] = entry['SMILE-correct'] if  entry["TrueName"].lower()== entry["Prediction"].lower() else generate_smiles_string(entry["Prediction"])
+                name_match = entry["TrueName"].lower().strip() == entry["Prediction"].lower().strip()
+                entry["SMILE-LLM"] = entry['SMILE-correct'] if name_match else generate_smiles_string(entry["Prediction"])                
                 entry["TanimotoCoefficient"] = calculate_tanimoto(
                     entry['SMILE-correct'], 
                     entry["SMILE-LLM"]
                 )
                 entry["Verdict"] = self.verdict_calculation(
+                    name_match,
                     entry['SMILE-correct'],
                     entry["SMILE-LLM"],
                     entry["TanimotoCoefficient"]
