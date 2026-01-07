@@ -2,41 +2,45 @@
 DATA SUMMARY
 ==============================================================================
 
-'data.frame':	5571 obs. of  5 variables:
- $ correct    : int  1 1 0 1 1 1 1 0 1 1 ...
- $ solver_type: Factor w/ 3 levels "Student","GPT-4o",..: 1 1 1 1 1 1 1 1 1 1 ...
- $ difficulty : Factor w/ 3 levels "easy","hard",..: 1 1 1 1 1 1 1 1 1 1 ...
- $ problem_id : int  19 9 113 18 89 122 69 44 98 38 ...
- $ solver_id  : chr  "student_2" "student_7" "student_5" "student_1" ...
+'data.frame':	5434 obs. of  7 variables:
+ $ correct       : int  1 1 0 1 1 1 1 0 1 1 ...
+ $ solver_type   : chr  "Student" "Student" "Student" "Student" ...
+ $ difficulty    : chr  "easy" "easy" "easy" "easy" ...
+ $ problem_id    : int  19 9 113 18 89 122 69 44 98 38 ...
+ $ solver_id     : chr  "student_2" "student_7" "student_5" "student_1" ...
+ $ solver_type_v2: chr  "Other_Student" "Other_Student" "Other_Student" "Other_Student" ...
+ $ top_student   : int  0 0 0 0 0 0 0 0 0 0 ...
 
---- Sample sizes by solver type ---
+--- Sample sizes by solver_type ---
 
-Student  GPT-4o      o1 
-   1546    2300    1725 
+ GPT-4o      o1 Student 
+   2240    1680    1514 
 
 --- Sample sizes by difficulty ---
 
   easy   hard medium 
-  2684   1129   1758 
+  2684   1129   1621 
 
 --- Cross-tabulation ---
          
           easy hard medium
-  Student  829  289    428
-  GPT-4o  1060  480    760
-  o1       795  360    570
+  GPT-4o  1060  480    700
+  o1       795  360    525
+  Student  829  289    396
 
 --- Unique solvers ---
-Students: 140 
+All Students: 140 
+Top_Student: 39 
+Other_Student: 101 
 GPT-4o: 20 
 o1: 15 
 
 --- Unique problems ---
-Total: 115 
+Total: 112 
 
 
 ==============================================================================
-MODEL 1: MAIN EFFECTS
+ANALYSIS A: All Students vs LLMs
 correct ~ solver_type + difficulty + (1 | problem_id) + (1 | solver_id)
 ==============================================================================
 
@@ -46,128 +50,99 @@ Formula: correct ~ solver_type + difficulty + (1 | problem_id) + (1 |      solve
    Data: df
 
       AIC       BIC    logLik -2*log(L)  df.resid 
-   4385.1    4431.5   -2185.5    4371.1      5564 
+   4283.2    4329.4   -2134.6    4269.2      5427 
 
 Scaled residuals: 
      Min       1Q   Median       3Q      Max 
--13.9850  -0.3941   0.0236   0.3462  21.5783 
+-15.0375  -0.3938   0.0356   0.3492  22.1730 
 
 Random effects:
  Groups     Name        Variance Std.Dev.
- solver_id  (Intercept) 1.668    1.292   
- problem_id (Intercept) 4.400    2.098   
-Number of obs: 5571, groups:  solver_id, 175; problem_id, 115
+ solver_id  (Intercept) 1.568    1.252   
+ problem_id (Intercept) 4.093    2.023   
+Number of obs: 5434, groups:  solver_id, 175; problem_id, 112
 
 Fixed effects:
-                    Estimate Std. Error z value Pr(>|z|)    
-(Intercept)        0.5475190  0.3210462   1.705   0.0881 .  
-solver_typeGPT-4o -0.0005621  0.3233916  -0.002   0.9986    
-solver_typeo1      3.9729075  0.3768359  10.543  < 2e-16 ***
-difficultyhard    -3.6171015  0.5366962  -6.740 1.59e-11 ***
-difficultymedium  -2.6132377  0.4603285  -5.677 1.37e-08 ***
+                  Estimate Std. Error z value Pr(>|z|)    
+(Intercept)        0.52399    0.31069   1.687   0.0917 .  
+solver_typeGPT-4o -0.01017    0.31454  -0.032   0.9742    
+solver_typeo1      4.07401    0.36829  11.062  < 2e-16 ***
+difficultyhard    -3.62145    0.51931  -6.974 3.09e-12 ***
+difficultymedium  -2.31067    0.45462  -5.083 3.72e-07 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Correlation of Fixed Effects:
             (Intr) s_GPT- slvr_1 dffcltyh
-slvr_tGPT-4 -0.164                       
-solver_typ1 -0.132  0.144                
-diffcltyhrd -0.509 -0.004 -0.039         
-diffcltymdm -0.593 -0.005 -0.033  0.370  
+slvr_tGPT-4 -0.167                       
+solver_typ1 -0.133  0.146                
+diffcltyhrd -0.508 -0.004 -0.044         
+diffcltymdm -0.579 -0.006 -0.032  0.362  
 
 --- Odds Ratios ---
       (Intercept) solver_typeGPT-4o     solver_typeo1    difficultyhard  difficultymedium 
-       1.72895813        0.99943801       53.13880973        0.02686042        0.07329685 
+       1.68875066        0.98988040       58.79224800        0.02674391        0.09919457 
 
 --- Odds Ratios with 95% CI ---
                          2.5 %       97.5 %
-(Intercept)        0.921529981   3.24384044
-solver_typeGPT-4o  0.530254638   1.88376728
-solver_typeo1     25.389173534 111.21799990
-difficultyhard     0.009381584   0.07690408
-difficultymedium   0.029733975   0.18068313
+(Intercept)        0.918558857   3.10473168
+solver_typeGPT-4o  0.534373291   1.83366800
+solver_typeo1     28.564914789 121.00608211
+difficultyhard     0.009664708   0.07400502
+difficultymedium   0.040692746   0.24180137
 
 
 ==============================================================================
-MODEL 2: WITH INTERACTION
-correct ~ solver_type * difficulty + (1 | problem_id) + (1 | solver_id)
+ANALYSIS B: Top Students vs LLMs
+correct ~ solver_type_v2 + difficulty + (1 | problem_id) + (1 | solver_id)
 ==============================================================================
 
 Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) ['glmerMod']
  Family: binomial  ( logit )
-Formula: correct ~ solver_type * difficulty + (1 | problem_id) + (1 |      solver_id)
-   Data: df
+Formula: correct ~ solver_type_v2 + difficulty + (1 | problem_id) + (1 |      solver_id)
+   Data: df_top
 
       AIC       BIC    logLik -2*log(L)  df.resid 
-   4383.7    4456.6   -2180.9    4361.7      5560 
+   2805.2    2849.8   -1395.6    2791.2      4327 
 
 Scaled residuals: 
      Min       1Q   Median       3Q      Max 
--13.8436  -0.3981   0.0237   0.3511  27.5258 
+-24.9528  -0.2943   0.0383   0.2866  17.1090 
 
 Random effects:
  Groups     Name        Variance Std.Dev.
- solver_id  (Intercept) 1.661    1.289   
- problem_id (Intercept) 4.433    2.106   
-Number of obs: 5571, groups:  solver_id, 175; problem_id, 115
+ problem_id (Intercept) 7.0678   2.659   
+ solver_id  (Intercept) 0.0441   0.210   
+Number of obs: 4334, groups:  problem_id, 112; solver_id, 74
 
 Fixed effects:
-                                   Estimate Std. Error z value Pr(>|z|)    
-(Intercept)                         0.52192    0.32562   1.603    0.109    
-solver_typeGPT-4o                   0.05024    0.33274   0.151    0.880    
-solver_typeo1                       3.98339    0.41163   9.677  < 2e-16 ***
-difficultyhard                     -3.83062    0.58096  -6.594 4.29e-11 ***
-difficultymedium                   -2.42587    0.48424  -5.010 5.45e-07 ***
-solver_typeGPT-4o:difficultyhard   -0.16798    0.29632  -0.567    0.571    
-solver_typeo1:difficultyhard        0.53046    0.36664   1.447    0.148    
-solver_typeGPT-4o:difficultymedium -0.10983    0.21803  -0.504    0.614    
-solver_typeo1:difficultymedium     -0.37014    0.29490  -1.255    0.209    
+                     Estimate Std. Error z value Pr(>|z|)    
+(Intercept)            3.2691     0.4216   7.753 8.96e-15 ***
+solver_type_v2GPT-4o  -2.5743     0.1841 -13.981  < 2e-16 ***
+solver_type_v2o1       2.0127     0.1932  10.417  < 2e-16 ***
+difficultyhard        -4.2203     0.6911  -6.106 1.02e-09 ***
+difficultymedium      -2.6262     0.6058  -4.335 1.46e-05 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 Correlation of Fixed Effects:
-                       (Intr) sl_GPT-4 slvr_1 dffcltyh dffcltym slvr_typGPT-4:dffcltyh slvr_typ1:dffcltyh slvr_typGPT-4:dffcltym
-slvr_tGPT-4            -0.191                                                                                                   
-solver_typ1            -0.154  0.152                                                                                            
-diffcltyhrd            -0.503  0.046    0.028                                                                                   
-diffcltymdm            -0.600  0.055    0.039  0.348                                                                            
-slvr_typGPT-4:dffcltyh  0.095 -0.162   -0.065 -0.301   -0.074                                                                   
-slvr_typ1:dffcltyh      0.083 -0.075   -0.293 -0.319   -0.064    0.454                                                          
-slvr_typGPT-4:dffcltym  0.126 -0.219   -0.096 -0.081   -0.274    0.264                  0.126                                   
-slvr_typ1:dffcltym      0.098 -0.092   -0.372 -0.062   -0.231    0.114                  0.429              0.437                
+            (Intr) s__2GP sl__21 dffcltyh
+slv__2GPT-4 -0.361                       
+slvr_typ_21 -0.233  0.559                
+diffcltyhrd -0.548  0.055 -0.050         
+diffcltymdm -0.608  0.036 -0.039  0.377  
 
 --- Odds Ratios ---
-                       (Intercept)                  solver_typeGPT-4o                      solver_typeo1                     difficultyhard                   difficultymedium 
-                        1.68526030                         1.05152598                        53.69871556                         0.02169606                         0.08840096 
-  solver_typeGPT-4o:difficultyhard       solver_typeo1:difficultyhard solver_typeGPT-4o:difficultymedium     solver_typeo1:difficultymedium 
-                        0.84537193                         1.69970962                         0.89598306                         0.69063474 
+         (Intercept) solver_type_v2GPT-4o     solver_type_v2o1       difficultyhard     difficultymedium 
+         26.28721235           0.07620980           7.48367113           0.01469385           0.07234956 
 
 --- Odds Ratios with 95% CI ---
-                                          2.5 %      97.5 %
-(Intercept)                         0.890219917   3.1903378
-solver_typeGPT-4o                   0.547763815   2.0185833
-solver_typeo1                      23.965383493 120.3215485
-difficultyhard                      0.006948179   0.0677471
-difficultymedium                    0.034219498   0.2283707
-solver_typeGPT-4o:difficultyhard    0.472955185   1.5110389
-solver_typeo1:difficultyhard        0.828493467   3.4870677
-solver_typeGPT-4o:difficultymedium  0.584408050   1.3736731
-solver_typeo1:difficultymedium      0.387458394   1.2310389
-
-
-==============================================================================
-MODEL COMPARISON: LIKELIHOOD RATIO TEST
-==============================================================================
-
-Data: df
-Models:
-model: correct ~ solver_type + difficulty + (1 | problem_id) + (1 | solver_id)
-model2: correct ~ solver_type * difficulty + (1 | problem_id) + (1 | solver_id)
-       npar    AIC    BIC  logLik -2*log(L)  Chisq Df Pr(>Chisq)  
-model     7 4385.1 4431.5 -2185.5    4371.1                       
-model2   11 4383.7 4456.6 -2180.9    4361.7 9.3517  4    0.05288 .
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+                            2.5 %      97.5 %
+(Intercept)          11.503821075 60.06852235
+solver_type_v2GPT-4o  0.053122464  0.10933103
+solver_type_v2o1      5.124415323 10.92911680
+difficultyhard        0.003791738  0.05694199
+difficultymedium      0.022070018  0.23717513
 
 
 ==============================================================================
@@ -182,6 +157,11 @@ Matrix products: default
 BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
 LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/New_York
+tzcode source: internal
 
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
