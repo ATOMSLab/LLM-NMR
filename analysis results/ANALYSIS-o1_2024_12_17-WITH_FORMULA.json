@@ -1791,18 +1791,9 @@
   {
     "id": 163,
     "attempts": 15,
-    "correct": 0,
-    "incorrect": 15,
+    "correct": 12,
+    "incorrect": 3,
     "incorrect_attempts": [
-      {
-        "Id": 163,
-        "Formula": "C4H6O4S",
-        "Verdict": 0,
-        "prediction": "### Scratchpad ###Based on the NMR data and the formula C\u2084H\u2086O\u2084S, the molecule must have only two distinct sets of carbons (as the 13C NMR shows just two signals). One of these sets is at \u223c171 ppm (carboxylic carbon) and the other at \u223c34 ppm (methylene carbon). The 1H NMR shows a single resonance (singlet) integrating to four protons at \u223c3.59 ppm, indicating two equivalent CH\u2082 groups (total 4H) and no visible acidic protons (likely broadened/exchangeable).A structure consistent with these data is HO\u2082C\u2013CH\u2082\u2013S\u2013CH\u2082\u2013CO\u2082H (thiodiglycolic acid, also called thiodiacetic acid). It is symmetric (hence only two 13C resonances: one for the two equivalent carboxylic carbons and one for the two equivalent methylene carbons) and matches the molecular formula, integrals, and chemical shifts.### Scratchpad ###### Start answer ###Thiodiglycolic acid### End answer ###",
-        "smile-llm": "OC(=O)COCC(O)=S",
-        "TanimotoCoefficient": 0.146788990825688,
-        "repetitions": 12
-      },
       {
         "Id": 163,
         "Formula": "C4H6O4S",
