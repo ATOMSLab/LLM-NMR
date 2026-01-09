@@ -90,7 +90,7 @@ This will:
 
 * unzip JSON dataset from the zip folder
 * Place it in the root directory (or update path in `config.py`)
-* answer_keys.zip contains the answer key files for both of our benchmarks, and is password-proteced with this password: Llmhack904.
+* answer_keys.zip contains the answer key files for both of our benchmarks, and is password-protected with this password: Llmhack904.
 
 ### Composition:
 
