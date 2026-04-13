@@ -13,7 +13,7 @@
 
 This repo includes:
 
-* **Benchmark Dataset:**  115 NMR problems from Easy, Medium, and Hard difficulty levels sourced from [NMR-Challenge.com](https://nmr-challenge.uochb.cas.cz/)
+* **Benchmark Dataset:**  112 NMR problems from Easy, Medium, and Hard difficulty levels sourced from [NMR-Challenge.com](https://nmr-challenge.uochb.cas.cz/)
 * **Comprehensive LLM Evaluation:** An Inference script for running benchmark tasks on all LLMs with public-facing APIs from OpenAI, Anthropic, and Google
 * **Automated grading:** Tools for grading model outputs using SMILES, Tanimoto comparison, performance, and scoring
 *  **Systematic Analysis:** Experimental configuration for analysing effects of temperature, prompting strategies, reasoning effort, and molecular formula inclusion.
